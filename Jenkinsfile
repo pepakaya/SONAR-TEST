@@ -25,17 +25,18 @@ pipeline {
             steps {
                 withSonarQubeEnv('SonarQubeServer') {  // Ensure 'SonarQubeServer' is configured in Jenkins
                     script {
-                        // Adjust the tool name if necessary based on your Jenkins configuration
-                        def scannerHome = tool 'SonarQube Scanner';  // Use the installed SonarQube Scanner tool
+                        // Use the installed SonarQube Scanner tool
+                        def scannerHome = tool 'SonarQube Scanner';  
 
                         withCredentials([string(credentialsId: 'sonar-auth-token', variable: 'SONARQUBE_AUTH_TOKEN')]) {
-                            // Execute SonarQube scanner
-                            sh "${scannerHome}/bin/sonar-scanner " +
-                               "-Dsonar.projectKey=${SONAR_PROJECT_KEY} " +
-                               "-Dsonar.sources=. " +  // Analyze all files in the current workspace
-                               "-Dsonar.host.url=${SONAR_HOST_URL} " +  // Use the SonarQube host URL
-                               "-Dsonar.login=${SONARQUBE_AUTH_TOKEN} " +  // Use the stored authentication token
-                               "-Dsonar.python.version=3.9"  // Specify your exact Python version
+                            // Execute SonarQube scanner securely
+                            sh """${scannerHome}/bin/sonar-scanner \
+                                -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
+                                -Dsonar.sources=. \
+                                -Dsonar.host.url=${SONAR_HOST_URL} \
+                                -Dsonar.login=$SONARQUBE_AUTH_TOKEN \
+                                -Dsonar.python.version=3.9 \
+                                -X"""  // Added -X for full debug logging
                         }
                     }
                 }
