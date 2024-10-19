@@ -1,26 +1,18 @@
 pipeline {
-    agent any
+    agent {
+        docker {
+            image 'python:3.9'  // Official Python 3.9 Docker image
+            args '-u root'  // Run as root user to install additional tools
+        }
+    }
 
     environment {
-        SONAR_HOST_URL = 'http://desktop-sonarqube-1:9000'  // SonarQube server URL
-        SONAR_PROJECT_KEY = 'My-sonar-test'  // Your SonarQube project key
-        COVERAGE_REPORT_PATH = 'coverage.xml'  // Location of the coverage report
+        SONAR_HOST_URL = 'http://desktop-sonarqube-1:9000'
+        SONAR_PROJECT_KEY = 'My-sonar-test'
+        COVERAGE_REPORT_PATH = 'coverage.xml'
     }
 
     stages {
-        stage('Install Python') {
-            steps {
-                sh '''
-                # Install Python 3.9 (or any version you need)
-                apt-get update
-                apt-get install -y python3 python3-pip
-
-                # Verify Python installation
-                python3 --version
-                '''
-            }
-        }
-
         stage('Checkout Code') {
             steps {
                 checkout scm  // Checkout your source code
@@ -33,7 +25,7 @@ pipeline {
                     // Install coverage.py for code coverage
                     sh '''
                     python3 -m pip install --upgrade pip
-                    pip install coverage  # Install only coverage.py
+                    pip install coverage  # Install coverage.py
                     '''
                 }
             }
@@ -53,21 +45,18 @@ pipeline {
 
         stage('SonarQube Analysis') {
             steps {
-                withSonarQubeEnv('SonarQubeServer') {  // Ensure 'SonarQubeServer' is configured in Jenkins
+                withSonarQubeEnv('SonarQubeServer') {
                     script {
                         def scannerHome = tool 'SonarQube Scanner'
 
                         withCredentials([string(credentialsId: 'sonar-auth-token', variable: 'SONARQUBE_AUTH_TOKEN')]) {
-                            // Execute SonarQube scanner with additional parameters for coverage
                             sh """
                                 ${scannerHome}/bin/sonar-scanner \
                                 -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
                                 -Dsonar.sources=. \
                                 -Dsonar.host.url=${SONAR_HOST_URL} \
                                 -Dsonar.token=$SONARQUBE_AUTH_TOKEN \
-                                -Dsonar.python.version=3.9 \
                                 -Dsonar.python.coverage.reportPaths=${COVERAGE_REPORT_PATH} \
-                                -Dsonar.coverage.exclusions=tests/**/*  # Exclude test files from coverage \
                                 -X
                             """
                         }
@@ -75,18 +64,11 @@ pipeline {
                 }
             }
         }
-
     }
 
     post {
         always {
             echo 'Pipeline completed.'
-        }
-        success {
-            echo 'SonarQube analysis and coverage check completed successfully.'
-        }
-        failure {
-            echo 'Pipeline failed.'
         }
     }
 }
