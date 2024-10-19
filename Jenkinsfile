@@ -4,6 +4,7 @@ pipeline {
     environment {
         SONAR_HOST_URL = 'http://desktop-sonarqube-1:9000'  // SonarQube container name or use IP if necessary
         SONAR_PROJECT_KEY = 'My-sonar-test'  // Your SonarQube project key
+        QUALITY_PROFILE = 'sonar-python-test'
     }
 
     stages {
@@ -28,6 +29,7 @@ pipeline {
                                 -Dsonar.host.url=${SONAR_HOST_URL} \
                                 -Dsonar.token=$SONARQUBE_AUTH_TOKEN \
                                 -Dsonar.python.version=3.9 \
+                                -Dsonar.qualityprofile=${QUALITY_PROFILE} \ 
                                 -X"""  // Added -X for full debug logging
                         }
                     }
