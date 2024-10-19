@@ -1,74 +1,51 @@
 pipeline {
-    agent {
-        docker {
-            image 'python:3.9'  // Official Python 3.9 Docker image
-            args '-u root'  // Run as root user to install additional tools
-        }
-    }
+    agent any
 
     environment {
-        SONAR_HOST_URL = 'http://desktop-sonarqube-1:9000'
-        SONAR_PROJECT_KEY = 'My-sonar-test'
-        COVERAGE_REPORT_PATH = 'coverage.xml'
+        SONAR_HOST_URL = 'http://desktop-sonarqube-1:9000'  // SonarQube container name or use IP if necessary
+        SONAR_PROJECT_KEY = 'My-sonar-test'  // Your SonarQube project key
     }
 
     stages {
         stage('Checkout Code') {
             steps {
-                checkout scm  // Checkout your source code
-            }
-        }
-
-        stage('Install Coverage.py') {
-            steps {
-                script {
-                    // Install coverage.py for code coverage
-                    sh '''
-                    python3 -m pip install --upgrade pip
-                    pip install coverage  # Install coverage.py
-                    '''
-                }
-            }
-        }
-
-        stage('Run Tests and Generate Coverage Report') {
-            steps {
-                script {
-                    // Run tests with coverage and generate the coverage.xml file
-                    sh '''
-                    coverage run -m unittest discover  # Adjust for your test framework
-                    coverage xml -o ${COVERAGE_REPORT_PATH}  # Generate coverage.xml
-                    '''
-                }
+                checkout scm  // Checkout your source code from the version control system
             }
         }
 
         stage('SonarQube Analysis') {
             steps {
-                withSonarQubeEnv('SonarQubeServer') {
+                withSonarQubeEnv('SonarQubeServer') {  // Ensure 'SonarQubeServer' is configured in Jenkins
                     script {
-                        def scannerHome = tool 'SonarQube Scanner'
+                        // Use the installed SonarQube Scanner tool
+                        def scannerHome = tool 'SonarQube Scanner';  
 
                         withCredentials([string(credentialsId: 'sonar-auth-token', variable: 'SONARQUBE_AUTH_TOKEN')]) {
-                            sh """
-                                ${scannerHome}/bin/sonar-scanner \
+                            // Execute SonarQube scanner securely
+                            sh """${scannerHome}/bin/sonar-scanner \
                                 -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
                                 -Dsonar.sources=. \
                                 -Dsonar.host.url=${SONAR_HOST_URL} \
                                 -Dsonar.token=$SONARQUBE_AUTH_TOKEN \
-                                -Dsonar.python.coverage.reportPaths=${COVERAGE_REPORT_PATH} \
-                                -X
-                            """
+                                -Dsonar.python.version=3.9 \
+                                -X"""  // Added -X for full debug logging
                         }
                     }
                 }
             }
         }
+
     }
 
     post {
         always {
             echo 'Pipeline completed.'
+        }
+        success {
+            echo 'SonarQube analysis completed successfully.'
+        }
+        failure {
+            echo 'Pipeline failed.'
         }
     }
 }
