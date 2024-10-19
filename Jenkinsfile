@@ -1,9 +1,7 @@
 pipeline {
     agent any
 
-
     environment {
-        // Set environment variables for SonarQube
         SONAR_HOST_URL = 'http://desktop-sonarqube-1:9000'  // SonarQube container name or use IP if necessary
         SONAR_PROJECT_KEY = 'My-sonar-test'  // Your SonarQube project key
     }
@@ -11,8 +9,7 @@ pipeline {
     stages {
         stage('Checkout Code') {
             steps {
-                // Checkout your source code from your version control system (e.g., Git)
-                checkout scm
+                checkout scm  // Checkout your source code from the version control system
             }
         }
 
@@ -26,20 +23,19 @@ pipeline {
 
         stage('SonarQube Analysis') {
             steps {
-                // Perform SonarQube analysis
-                withSonarQubeEnv('SonarQubeServer') {  // 'My SonarQube' is the name you set in Jenkins SonarQube configuration
+                withSonarQubeEnv('SonarQubeServer') {  // Ensure 'SonarQubeServer' is configured in Jenkins
                     script {
-                        def scannerHome = tool 'SonarQube Scanner 2.8';  // Use the SonarQube Scanner tool
+                        // Adjust the tool name if necessary based on your Jenkins configuration
+                        def scannerHome = tool 'SonarQube Scanner';  // Use the installed SonarQube Scanner tool
 
                         withCredentials([string(credentialsId: 'sonar-auth-token', variable: 'SONARQUBE_AUTH_TOKEN')]) {
                             // Execute SonarQube scanner
-                        sh "${scannerHome}/bin/sonar-scanner " +
-                            "-Dsonar.projectKey=${SONAR_PROJECT_KEY} " +
-                            "-Dsonar.sources=. " + // Analyze all files in the current workspace
-                            "-Dsonar.host.url=${SONAR_HOST_URL} " + // Use the SonarQube host URL
-                            "-Dsonar.login=${SONARQUBE_AUTH_TOKEN} " + // Use the stored authentication token
-                            "-Dsonar.language=py " + // Specify Python as the language
-                            "-Dsonar.python.version=3.x" // Specify your Python version (e.g., 3.9)
+                            sh "${scannerHome}/bin/sonar-scanner " +
+                               "-Dsonar.projectKey=${SONAR_PROJECT_KEY} " +
+                               "-Dsonar.sources=. " +  // Analyze all files in the current workspace
+                               "-Dsonar.host.url=${SONAR_HOST_URL} " +  // Use the SonarQube host URL
+                               "-Dsonar.login=${SONARQUBE_AUTH_TOKEN} " +  // Use the stored authentication token
+                               "-Dsonar.python.version=3.9"  // Specify your exact Python version
                         }
                     }
                 }
@@ -48,8 +44,7 @@ pipeline {
 
         stage('Quality Gate') {
             steps {
-                // Wait for SonarQube Quality Gate to complete
-                timeout(time: 1, unit: 'MINUTES') {
+                timeout(time: 5, unit: 'MINUTES') {  // Increased timeout for Quality Gate
                     waitForQualityGate abortPipeline: true  // Fail the pipeline if the quality gate fails
                 }
             }
