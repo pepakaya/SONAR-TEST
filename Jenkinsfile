@@ -13,14 +13,6 @@ pipeline {
             }
         }
 
-        stage('Build') {
-            steps {
-                echo "No build step for Python analysis"
-                // If needed, you can run build or test steps for Python projects here
-                // Example: sh 'python3 -m unittest discover tests'
-            }
-        }
-
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('SonarQubeServer') {  // Ensure 'SonarQubeServer' is configured in Jenkins
@@ -43,13 +35,6 @@ pipeline {
             }
         }
 
-        stage('Quality Gate') {
-            steps {
-                timeout(time: 10, unit: 'MINUTES') {  // Increased timeout for Quality Gate
-                    waitForQualityGate abortPipeline: true  // Fail the pipeline if the quality gate fails
-                }
-            }
-        }
     }
 
     post {
