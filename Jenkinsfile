@@ -26,7 +26,7 @@ pipeline {
                                 -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
                                 -Dsonar.sources=. \
                                 -Dsonar.host.url=${SONAR_HOST_URL} \
-                                -Dsonar.login=$SONARQUBE_AUTH_TOKEN \
+                                -Dsonar.token=$SONARQUBE_AUTH_TOKEN \
                                 -Dsonar.python.version=3.9 \
                                 -X"""  // Added -X for full debug logging
                         }
