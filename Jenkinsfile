@@ -43,6 +43,14 @@ pipeline {
             }
         }
 
+        stage('Quality Gate') {
+            steps {
+                timeout(time: 10, unit: 'MINUTES') {  // Increased timeout for Quality Gate
+                    waitForQualityGate abortPipeline: true  // Fail the pipeline if the quality gate fails
+                }
+            }
+        }
+    }
 
     post {
         always {
