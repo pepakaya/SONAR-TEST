@@ -29,7 +29,7 @@ pipeline {
                                 -Dsonar.host.url=${SONAR_HOST_URL} \
                                 -Dsonar.token=$SONARQUBE_AUTH_TOKEN \
                                 -Dsonar.python.version=3.9 \
-                                -Dsonar.qualityprofile=${QUALITY_PROFILE} \ 
+                                -Dsonar.qualityprofile=${QUALITY_PROFILE} \
                                 -X"""  // Added -X for full debug logging
                         }
                     }
