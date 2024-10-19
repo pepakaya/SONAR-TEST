@@ -32,7 +32,7 @@ pipeline {
                 // Perform SonarQube analysis
                 withSonarQubeEnv('My SonarQube') {  // 'My SonarQube' is the name you set in Jenkins SonarQube configuration
                     script {
-                        def scannerHome = tool 'SonarQube Scanner'  // Use the SonarQube Scanner tool
+                        def scannerHome = tool 'SonarQube Scanner 2.8';  // Use the SonarQube Scanner tool
 
                         withCredentials([string(credentialsId: 'sonar-auth-token', variable: 'SONARQUBE_AUTH_TOKEN')]) {
                             // Execute SonarQube scanner
