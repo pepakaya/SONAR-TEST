@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     tools {
-        hudson.plugins.sonar.MsBuildSQRunnerInstallation 'SonarQube Scanner'  // Reference to SonarQube Scanner configured in Jenkins
+        hudson.plugins.sonar.MsBuildSQRunnerInstallation  = 'SonarQube Scanner'  // Reference to SonarQube Scanner configured in Jenkins
     }
 
     environment {
