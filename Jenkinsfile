@@ -36,13 +36,13 @@ pipeline {
 
                         withCredentials([string(credentialsId: 'sonar-auth-token', variable: 'SONARQUBE_AUTH_TOKEN')]) {
                             // Execute SonarQube scanner
-                            sh "${scannerHome}/bin/sonar-scanner +
-                                -Dsonar.projectKey=${SONAR_PROJECT_KEY} +
-                                -Dsonar.sources=. +  // Analyze all files in the current workspace
-                                -Dsonar.host.url=${SONAR_HOST_URL} +  // Use the SonarQube host URL
-                                -Dsonar.login=${SONARQUBE_AUTH_TOKEN} +  // Use the stored authentication token
-                                -Dsonar.language=py + // Specify Python as the language
-                                -Dsonar.python.version=3.x"  // Specify your Python version (e.g., 3.9)
+                        sh "${scannerHome}/bin/sonar-scanner " +
+                            "-Dsonar.projectKey=${SONAR_PROJECT_KEY} " +
+                            "-Dsonar.sources=. " + // Analyze all files in the current workspace
+                            "-Dsonar.host.url=${SONAR_HOST_URL} " + // Use the SonarQube host URL
+                            "-Dsonar.login=${SONARQUBE_AUTH_TOKEN} " + // Use the stored authentication token
+                            "-Dsonar.language=py " + // Specify Python as the language
+                            "-Dsonar.python.version=3.x" // Specify your Python version (e.g., 3.9)
                         }
                     }
                 }
